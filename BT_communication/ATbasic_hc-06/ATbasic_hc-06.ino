@@ -14,7 +14,8 @@ void setup() {
     Serial.begin(9600);
     Serial.println("Enter AT commands:");
     // HC-06 default serial speed is 9600
-    BTserial.begin(9600);  
+    
+    BTserial.begin(38400);
 }
  
 void loop(){
