@@ -1,23 +1,43 @@
 
 #include <SoftwareSerial.h>
 
-SoftwareSerial mySerial(2,3);// RX,TX
+#define BT_RX     2
+#define BT_TX     3
 
-char c = ' ';
+SoftwareSerial BTtransmiter(BT_RX,BT_TX);    // RX,TX
 
-void setup(){  
+char *data = "Hello World\n";
+char *c;
+
+void setup()
+{  
   Serial.begin(9600);
-  mySerial.begin(38400);
+  BTtransmiter.begin(38400);
+  c=data;
 }
-void loop(){
-  c = 'a';
-  int s = mySerial.write(c);
-  if(s<0){
+
+void loop()
+{
+  int s = BTtransmiter.write(*c);
+  
+/*  if(s<0){
     Serial.print("Error("); Serial.print(s); Serial.print(") ");
   }else{
     Serial.print("Alright("); Serial.print(s); Serial.print(") ");
+    Serial.println("Enviado 'a'");
+  }
+*/
+
+  if(*c == '\n')
+  {
+    c=data;
+    delay(500);
+  }else
+  {
+    c=c+1;
   }
   
-  Serial.println("Enviado 'a'");
-  delay(500);
+  
+  
+  delay(5);
 }
