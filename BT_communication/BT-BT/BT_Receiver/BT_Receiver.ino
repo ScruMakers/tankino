@@ -1,32 +1,43 @@
 
 #include<SoftwareSerial.h>
 
-#define IN1                 5
-#define IN2                 6
-#define IN3                 9
-#define IN4                 10
-#define WAITING_INIT        0
-#define WAITING_X           1
-#define WAITING_Y           2
-#define MAX_MOTORS_VALUE    255
-#define MIN_MOTORS_VALUE    30
-#define MAX_TURN            50
-#define SQUARE_SIZE         28    // This value is remapping to analogWrite byte function
+#define RIGHT1                 5
+#define RIGHT2                 6
+#define LEFT1                  9
+#define LEFT2                  10
+#define WAITING_INIT           0
+#define WAITING_X              1
+#define WAITING_Y              2
+#define MAX_MOTORS_VALUE       255
+#define MIN_MOTORS_VALUE       30
+#define MAX_TURN               50
+#define SQUARE_SIZE            28    // This value is remapping to analogWrite byte function
 
-// se define al Pin2 como RX, Pin3 como TX
+// se define al PRIGHT2 como RX, PLEFT1 como TX
 SoftwareSerial mySerial(2,3);
 char c = ' ';
 char state;
 char x,y;
 
+
+void Stop();
+
+
+uint8_t testValue = 150;
+
 void setup(){      
    Serial.begin(9600);
    mySerial.begin(38400);
    state = WAITING_INIT;
+
+   
+  Stop();
+
+  delay(1000);
 }
 
 void loop() {
-        if(mySerial.available()>0){
+      /*  if(mySerial.available()>0){
           c = mySerial.read();
           switch(state){
                 case WAITING_INIT:
@@ -57,26 +68,62 @@ void loop() {
           
           delay(5);
         }
+*/
+    
+
+  rightUp(testValue);
+  leftUp(testValue);
+
+  delay(1000);
+  
+  rightDown(testValue);
+  leftDown(testValue);
+
+  delay(1000);
+  
+  rightUp(testValue);
+  leftDown(testValue);
+
+  
+  delay(1000);
+  
+  rightDown(testValue);
+  leftUp(testValue);
+
+  delay(1000);
+
+  Stop();
+
+  delay(1000);
+        
 }
 
 void rightUp(uint8_t value){
-  analogWrite(IN1, value);
-  analogWrite(IN2, 0);
+  analogWrite(RIGHT1, value);
+  analogWrite(RIGHT2, 0);
 }
 
 void rightDown(uint8_t value){
-  analogWrite(IN1, 0);
-  analogWrite(IN2, value);
+  analogWrite(RIGHT1, 0);
+  analogWrite(RIGHT2, value);
 }
 
 void leftUp(uint8_t value){
-  analogWrite(IN3, value);
-  analogWrite(IN4, 0);
+  analogWrite(LEFT1, value);
+  analogWrite(LEFT2, 0);
 }
 
 void leftDown(uint8_t value){
-  analogWrite(IN3, 0);
-  analogWrite(IN4, value);
+  analogWrite(LEFT1, 0);
+  analogWrite(LEFT2, value);
+}
+
+void Stop()
+{
+  analogWrite(RIGHT1, 0);
+  analogWrite(RIGHT2, 0);
+  analogWrite(LEFT1, 0);
+  analogWrite(LEFT2, 0);
 }
 
 void calculateAndMove(int x, int y){
