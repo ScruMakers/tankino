@@ -39,6 +39,8 @@ void loop()
   //Calcular los angulos de inclinacion
   float accel_ang_x = atan(ax / sqrt(pow(ay, 2) + pow(az, 2)))*(180.0 / 3.14);
   float accel_ang_y = atan(ay / sqrt(pow(ax, 2) + pow(az, 2)))*(180.0 / 3.14);
+  Serial.println(accel_ang_x);
+ Serial.println(accel_ang_y);
  
    if(millis() - txtime >  50)
    {
