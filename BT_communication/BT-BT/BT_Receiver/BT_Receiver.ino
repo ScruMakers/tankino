@@ -8,7 +8,7 @@
 #define WAITING_INIT           0
 #define WAITING_X              1
 #define WAITING_Y              2
-#define MAX_MOTORS_VALUE       255
+#define MAX_MOTORS_VALUE       220
 #define MIN_MOTORS_VALUE       30
 #define MAX_TURN               50
 #define SQUARE_SIZE_X          28    // This value is remapping to analogWrite byte function
@@ -28,15 +28,17 @@ void calculateAndMove(int &x, int &y);
 uint8_t testValue = 150;
 
 void setup(){      
-   Serial.begin(9600);
-   mySerial.begin(38400);
-   state = WAITING_INIT;
-
-  Serial.println(sizeof(int));
-  delay(10000);
-  Stop();
-
-  delay(1000);
+   Serial.begin(9600);        // Usb serial communication
+   mySerial.begin(38400);     // Bluetooth serial communication
+   state = WAITING_INIT;      // Initialize state
+   pinMode(RIGHT1, OUTPUT);   // Set motors pins as outputs
+   pinMode(RIGHT2, OUTPUT);
+   pinMode(LEFT1, OUTPUT);
+   pinMode(LEFT2, OUTPUT);
+   //Serial.println(sizeof(int));
+   delay(2000);//delay(10000);
+   Stop();
+   delay(1000);
 }
 
 void loop() {
@@ -146,24 +148,58 @@ void calculateAndMove(int x, int y){
   Serial.println(new_y);
 
   if(new_x > 0){    // Go forward
+    
     if(new_y > 0){  // Turn right
       Serial.println("++!");
       rightUp(new_x - new_y); 
       leftUp(new_x + new_y);
-    }else{          // Turn left
+    }
+    if(new_y < 0){  // Turn left
       Serial.println("+-!");
       rightUp(new_x + new_y);
       leftUp(new_x - new_y);
     }
-  }else{            // Go back
+    if(new_y == 0){ // Go straight on
+      Serial.println("+0!");
+      rightUp(new_x);
+      leftUp(new_x);
+    }
+  }
+  
+  if(new_x < 0){    // Go back
+    
     if(new_y > 0){  // Turn right
       Serial.println("-+!");
-      rightDown(new_x - new_y); 
+      rightDown(new_x - new_y);
       leftDown(new_x + new_y);
-    }else{          // Turn left
-      Serial.println("00!");
+    }
+    if(new_y < 0){  // Turn left
+      Serial.println("--!");
       rightDown(new_x + new_y);
       leftDown(new_x - new_y);
+    }
+    if(new_y == 0){  // Go straight back
+      Serial.println("-0!");
+      rightDown(new_x);
+      leftDown(new_x);
+    }
+  }
+  
+  if(new_x == 0){   // Rotate or stop
+    
+    if(new_y > 0){  // Rotate right
+      Serial.println("0+!");
+      rightDown(new_y);
+      leftDown(new_y);
+    }
+    if(new_y < 0){  // Rotate left
+      Serial.println("0-!");
+      rightDown(new_y);
+      leftDown(new_y);
+    }
+    if(new_y == 0){  // Stop
+      Serial.println("00!");
+      Stop();
     }
   }
 
