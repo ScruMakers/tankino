@@ -6,12 +6,14 @@
  
 #include "bt_utils.hpp"
 
-#define BT_RX     2
-#define BT_TX     3
+#define RX     2
+#define TX     3
 
 #define MPU_ADDR 0x68
 
-SoftwareSerial BTtransmiter(BT_RX,BT_TX);    // RX,TX
+SoftwareSerial BTtransmiter(RX, TX); // RX | TX
+// Connect the HC-05 TX to Arduino pin 2 RX.
+// Connect the HC-05 RX to Arduino pin 3 TX through a voltage divider.
 MPU6050 mpu(MPU_ADDR);
 
 int ax, ay, az;

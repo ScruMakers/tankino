@@ -14,8 +14,9 @@
 #define SQUARE_SIZE_X          28    // This value is remapping to analogWrite byte function
 #define SQUARE_SIZE_Y          5
 
-// se define al PRIGHT2 como RX, PLEFT1 como TX
-SoftwareSerial mySerial(2,3);
+SoftwareSerial mySerial(2,3); // RX | TX
+// Connect the HC-05 TX to Arduino pin 2 RX.
+// Connect the HC-05 RX to Arduino pin 3 TX through a voltage divider.
 char c = ' ';
 char state;
 char x,y;
@@ -131,7 +132,7 @@ void Stop()
 void calculateAndMove(int x, int y){
 
   int new_x = x * MAX_MOTORS_VALUE / 90;   // Mapping x (angle) in motors value range
-  int new_y = y * MAX_TURN / 90;         // Mapping x (angle) in motors value range
+  int new_y = y * MAX_TURN / 90;         // Mapping y (angle) in motors value range
   
 
   if(x > -SQUARE_SIZE_X && x < SQUARE_SIZE_X){
