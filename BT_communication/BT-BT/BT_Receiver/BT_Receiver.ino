@@ -133,8 +133,8 @@ void Stop()
 
 void calculateAndMove(int x, int y){
 
-  int new_x = x * MAX_MOTORS_VALUE / 90;   // Mapping x (angle) in motors value range
-  int new_y = y * MAX_TURN / 90;         // Mapping y (angle) in motors value range
+  int new_x = (x * MAX_MOTORS_VALUE) / 90;   // Mapping x (angle) in motors value range
+  int new_y = (y * MAX_TURN) / 90;         // Mapping y (angle) in motors value range
   
 
   if(x > -SQUARE_SIZE_X && x < SQUARE_SIZE_X){
@@ -144,60 +144,95 @@ void calculateAndMove(int x, int y){
     new_y = 0;
   }
 
+  int sumxy = abs(new_x) + abs(new_y);
+  int resxy = abs(new_x) - abs(new_y);
+
   Serial.println(new_x);
   Serial.println(new_y);
 
-  if(new_x > 0){    // Go forward
+  if(new_x > 0){                     // Go forward
     
-    if(new_y > 0){  // Turn right
+    if(new_y > 0){                   // Turn right
       Serial.println("++!");
-      rightUp(new_x - new_y); 
-      leftUp(new_x + new_y);
+      if(sumxy > MAX_MOTORS_VALUE){  //  Out of range turn
+        rightUp(resxy); 
+        leftUp(MAX_MOTORS_VALUE);        
+      }else if(resxy < 0){           //  Static turn
+        rightUp(0); 
+        leftUp(sumxy);      
+      }else{                         //  Normal turn
+        rightUp(resxy); 
+        leftUp(sumxy);      
+      }
     }
-    if(new_y < 0){  // Turn left
+    if(new_y < 0){                   // Turn left
       Serial.println("+-!");
-      rightUp(new_x + new_y);
-      leftUp(new_x - new_y);
+      if(sumxy > MAX_MOTORS_VALUE){  //  Out of range turn
+        rightUp(MAX_MOTORS_VALUE); 
+        leftUp(resxy);        
+      }else if(resxy < 0){           //  Static turn
+        rightUp(sumxy); 
+        leftUp(0);      
+      }else{                         //  Normal turn
+        rightUp(sumxy); 
+        leftUp(resxy);      
+      }
     }
-    if(new_y == 0){ // Go straight on
+    if(new_y == 0){                  // Go straight on
       Serial.println("+0!");
       rightUp(new_x);
       leftUp(new_x);
     }
   }
   
-  if(new_x < 0){    // Go back
+  if(new_x < 0){                     // Go back
     
-    if(new_y > 0){  // Turn right
+    if(new_y > 0){                   // Turn right
       Serial.println("-+!");
-      rightDown(new_x - new_y);
-      leftDown(new_x + new_y);
+      if(sumxy > MAX_MOTORS_VALUE){  //  Out of range turn
+        rightDown(resxy); 
+        leftDown(MAX_MOTORS_VALUE);        
+      }else if(resxy < 0){           //  Static turn
+        rightDown(0); 
+        leftDown(sumxy);      
+      }else{                         //  Normal turn
+        rightDown(resxy); 
+        leftDown(sumxy);      
+      }
     }
-    if(new_y < 0){  // Turn left
+    if(new_y < 0){                   // Turn left
       Serial.println("--!");
-      rightDown(new_x + new_y);
-      leftDown(new_x - new_y);
+      if(sumxy > MAX_MOTORS_VALUE){  //  Out of range turn
+        rightDown(MAX_MOTORS_VALUE); 
+        leftDown(resxy);        
+      }else if(resxy < 0){           //  Static turn
+        rightDown(sumxy); 
+        leftDown(0);      
+      }else{                         //  Normal turn
+        rightDown(sumxy); 
+        leftDown(resxy);      
+      }
     }
-    if(new_y == 0){  // Go straight back
+    if(new_y == 0){                  // Go straight back
       Serial.println("-0!");
       rightDown(new_x);
       leftDown(new_x);
     }
   }
   
-  if(new_x == 0){   // Rotate or stop
+  if(new_x == 0){                    // Rotate or stop
     
-    if(new_y > 0){  // Rotate right
+    if(new_y > 0){                   // Rotate right
       Serial.println("0+!");
       rightDown(new_y);
-      leftDown(new_y);
+      leftUp(new_y);
     }
-    if(new_y < 0){  // Rotate left
+    if(new_y < 0){                   // Rotate left
       Serial.println("0-!");
-      rightDown(new_y);
+      rightUp(new_y);
       leftDown(new_y);
     }
-    if(new_y == 0){  // Stop
+    if(new_y == 0){                  // Stop
       Serial.println("00!");
       Stop();
     }
