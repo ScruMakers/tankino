@@ -8,11 +8,11 @@
 #define WAITING_INIT           0
 #define WAITING_X              1
 #define WAITING_Y              2
-#define MAX_MOTORS_VALUE       220
+#define MAX_MOTORS_VALUE       255
 #define MIN_MOTORS_VALUE       30
-#define MAX_TURN               50
-#define SQUARE_SIZE_X          28    // This value is remapping to analogWrite byte function
-#define SQUARE_SIZE_Y          5
+#define MAX_TURN               70
+#define SQUARE_SIZE_X          10    // This value is remapping to analogWrite byte function
+#define SQUARE_SIZE_Y          10
 
 SoftwareSerial mySerial(2,3); // RX | TX
 // Connect the HC-05 TX to Arduino pin 2 RX.
@@ -20,7 +20,6 @@ SoftwareSerial mySerial(2,3); // RX | TX
 char c = ' ';
 char state;
 char x,y;
-
 
 void Stop();
 void calculateAndMove(int &x, int &y);
@@ -35,8 +34,6 @@ void setup(){
    pinMode(RIGHT2, OUTPUT);
    pinMode(LEFT1, OUTPUT);
    pinMode(LEFT2, OUTPUT);
-   //Serial.println(sizeof(int));
-   delay(2000);//delay(10000);
    Stop();
    delay(1000);
 }
@@ -73,39 +70,18 @@ void loop() {
           
           delay(20);
         }
-
-    
-
-/*  rightUp(testValue);
-  leftUp(testValue);
-
-  delay(1000);
-  
-  rightDown(testValue);
-  leftDown(testValue);
-
-  delay(1000);
-  
-  rightUp(testValue);
-  leftDown(testValue);
-
-  
-  delay(1000);
-  
-  rightDown(testValue);
-  leftUp(testValue);
-
-  delay(1000);
-
-  Stop();
-
-  delay(1000);*/
-        
 }
 
-void rightUp(uint8_t value){
-  analogWrite(RIGHT1, abs(value));
-  analogWrite(RIGHT2, 0);
+void right(int16_t value){
+  if(value>255)value=255;
+  if(value<-255)value=-255;
+  if(value>0){
+    analogWrite(RIGHT1, value);
+    analogWrite(RIGHT2, 0);
+  }else{
+    analogWrite(RIGHT1, 0);
+    analogWrite(RIGHT2, abs(value)); 
+  }
 }
 
 void rightDown(uint8_t value){
@@ -113,9 +89,16 @@ void rightDown(uint8_t value){
   analogWrite(RIGHT2, abs(value));
 }
 
-void leftUp(uint8_t value){
-  analogWrite(LEFT1, abs(value));
-  analogWrite(LEFT2, 0);
+void left(int16_t value){
+  if(value>255)value=255;
+  if(value<-255)value=-255;
+  if(value>0){
+    analogWrite(LEFT1, value);
+    analogWrite(LEFT2, 0);
+  }else{
+    analogWrite(LEFT1, 0);
+    analogWrite(LEFT2, abs(value)); 
+  }
 }
 
 void leftDown(uint8_t value){
@@ -136,106 +119,44 @@ void calculateAndMove(int x, int y){
   int new_x = (x * MAX_MOTORS_VALUE) / 90;   // Mapping x (angle) in motors value range
   int new_y = (y * MAX_TURN) / 90;         // Mapping y (angle) in motors value range
   
-
-  if(x > -SQUARE_SIZE_X && x < SQUARE_SIZE_X){
-    new_x = 0;
-  }
   if(y > -SQUARE_SIZE_Y && y < SQUARE_SIZE_Y){
     new_y = 0;
   }
+  if(x > -SQUARE_SIZE_X && x < SQUARE_SIZE_X){
+    new_x = 0;
+    new_y = new_y*2;
+  }
 
   int sumxy = abs(new_x) + abs(new_y);
-  int resxy = abs(new_x) - abs(new_y);
+  int resxy = -sumxy;
 
   Serial.println(new_x);
   Serial.println(new_y);
 
-  if(new_x > 0){                     // Go forward
-    
-    if(new_y > 0){                   // Turn right
-      Serial.println("++!");
-      if(sumxy > MAX_MOTORS_VALUE){  //  Out of range turn
-        rightUp(resxy); 
-        leftUp(MAX_MOTORS_VALUE);        
-      }else if(resxy < 0){           //  Static turn
-        rightUp(0); 
-        leftUp(sumxy);      
-      }else{                         //  Normal turn
-        rightUp(resxy); 
-        leftUp(sumxy);      
-      }
+  if(new_x>0){            // Go Ahead
+    if(new_y>0){          // Turn right
+      right(new_x);
+      left(sumxy);
+    }else if(new_y<0){    // Turn left
+      right(sumxy);
+      left(new_x);
+    }else{                // Straight
+      right(new_x);
+      left(new_x);
     }
-    if(new_y < 0){                   // Turn left
-      Serial.println("+-!");
-      if(sumxy > MAX_MOTORS_VALUE){  //  Out of range turn
-        rightUp(MAX_MOTORS_VALUE); 
-        leftUp(resxy);        
-      }else if(resxy < 0){           //  Static turn
-        rightUp(sumxy); 
-        leftUp(0);      
-      }else{                         //  Normal turn
-        rightUp(sumxy); 
-        leftUp(resxy);      
-      }
+  }else if(new_y<0){      // Go Back
+    if(new_y>0){          // Turn right
+      right(new_x);
+      left(resxy);
+    }else if(new_y<0){    // Turn left
+      right(resxy);
+      left(new_x);
+    }else{                // Straight
+      right(new_x);
+      left(new_x);
     }
-    if(new_y == 0){                  // Go straight on
-      Serial.println("+0!");
-      rightUp(new_x);
-      leftUp(new_x);
-    }
+  }else{                  // Static
+    right(-new_y);
+    left(new_y);
   }
-  
-  if(new_x < 0){                     // Go back
-    
-    if(new_y > 0){                   // Turn right
-      Serial.println("-+!");
-      if(sumxy > MAX_MOTORS_VALUE){  //  Out of range turn
-        rightDown(resxy); 
-        leftDown(MAX_MOTORS_VALUE);        
-      }else if(resxy < 0){           //  Static turn
-        rightDown(0); 
-        leftDown(sumxy);      
-      }else{                         //  Normal turn
-        rightDown(resxy); 
-        leftDown(sumxy);      
-      }
-    }
-    if(new_y < 0){                   // Turn left
-      Serial.println("--!");
-      if(sumxy > MAX_MOTORS_VALUE){  //  Out of range turn
-        rightDown(MAX_MOTORS_VALUE); 
-        leftDown(resxy);        
-      }else if(resxy < 0){           //  Static turn
-        rightDown(sumxy); 
-        leftDown(0);      
-      }else{                         //  Normal turn
-        rightDown(sumxy); 
-        leftDown(resxy);      
-      }
-    }
-    if(new_y == 0){                  // Go straight back
-      Serial.println("-0!");
-      rightDown(new_x);
-      leftDown(new_x);
-    }
-  }
-  
-  if(new_x == 0){                    // Rotate or stop
-    
-    if(new_y > 0){                   // Rotate right
-      Serial.println("0+!");
-      rightDown(new_y);
-      leftUp(new_y);
-    }
-    if(new_y < 0){                   // Rotate left
-      Serial.println("0-!");
-      rightUp(new_y);
-      leftDown(new_y);
-    }
-    if(new_y == 0){                  // Stop
-      Serial.println("00!");
-      Stop();
-    }
-  }
-
 }
