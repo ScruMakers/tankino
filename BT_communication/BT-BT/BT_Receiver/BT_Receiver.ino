@@ -13,6 +13,8 @@
 #define MAX_TURN               100
 #define SQUARE_SIZE_X          10    // This value is remapping to analogWrite byte function
 #define SQUARE_SIZE_Y          10
+#define START_BUTTON           12
+#define START_DELAY            1000
 
 SoftwareSerial mySerial(2,3); // RX | TX
 // Connect the HC-05 TX to Arduino pin 2 RX.
@@ -34,11 +36,13 @@ void setup(){
    pinMode(RIGHT2, OUTPUT);
    pinMode(LEFT1, OUTPUT);
    pinMode(LEFT2, OUTPUT);
+   pinMode(START_BUTTON, INPUT);
    Stop();
    delay(1000);
 }
 
 void loop() {
+    if(digitalRead(START_BUTTON) == HIGH){
         if(mySerial.available()>0){
           c = mySerial.read();
           switch(state){
@@ -70,6 +74,9 @@ void loop() {
           
           delay(20);
         }
+    }else{
+      delay(START_DELAY);
+    }
 }
 
 void right(int value){
