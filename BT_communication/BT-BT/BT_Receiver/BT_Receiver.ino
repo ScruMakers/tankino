@@ -10,7 +10,7 @@
 #define WAITING_Y              2
 #define MAX_MOTORS_VALUE       255
 #define MIN_MOTORS_VALUE       30
-#define MAX_TURN               70
+#define MAX_TURN               100
 #define SQUARE_SIZE_X          10    // This value is remapping to analogWrite byte function
 #define SQUARE_SIZE_Y          10
 
@@ -72,7 +72,7 @@ void loop() {
         }
 }
 
-void right(int16_t value){
+void right(int value){
   if(value>255)value=255;
   if(value<-255)value=-255;
   if(value>0){
@@ -89,7 +89,7 @@ void rightDown(uint8_t value){
   analogWrite(RIGHT2, abs(value));
 }
 
-void left(int16_t value){
+void left(int value){
   if(value>255)value=255;
   if(value<-255)value=-255;
   if(value>0){
@@ -116,8 +116,8 @@ void Stop()
 
 void calculateAndMove(int x, int y){
 
-  int new_x = (x * MAX_MOTORS_VALUE) / 90;   // Mapping x (angle) in motors value range
-  int new_y = (y * MAX_TURN) / 90;         // Mapping y (angle) in motors value range
+  int new_x = (x * MAX_MOTORS_VALUE) / 80;   // Mapping x (angle) in motors value range
+  int new_y = (y * MAX_TURN) / 80;         // Mapping y (angle) in motors value range
   
   if(y > -SQUARE_SIZE_Y && y < SQUARE_SIZE_Y){
     new_y = 0;
@@ -144,7 +144,7 @@ void calculateAndMove(int x, int y){
       right(new_x);
       left(new_x);
     }
-  }else if(new_y<0){      // Go Back
+  }else if(new_x<0){      // Go Back
     if(new_y>0){          // Turn right
       right(new_x);
       left(resxy);
