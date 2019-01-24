@@ -10,11 +10,12 @@
 #define WAITING_Y              2
 #define MAX_MOTORS_VALUE       255
 #define MIN_MOTORS_VALUE       30
-#define MAX_TURN               100
+#define MAX_TURN               120
 #define SQUARE_SIZE_X          10    // This value is remapping to analogWrite byte function
 #define SQUARE_SIZE_Y          10
 #define START_BUTTON           12
 #define START_DELAY            1000
+#define ACCEL_SENSIBILITY      70
 
 SoftwareSerial mySerial(2,3); // RX | TX
 // Connect the HC-05 TX to Arduino pin 2 RX.
@@ -123,8 +124,8 @@ void Stop()
 
 void calculateAndMove(int x, int y){
 
-  int new_x = (x * MAX_MOTORS_VALUE) / 80;   // Mapping x (angle) in motors value range
-  int new_y = (y * MAX_TURN) / 80;         // Mapping y (angle) in motors value range
+  int new_x = (x * MAX_MOTORS_VALUE) / ACCEL_SENSIBILITY;   // Mapping x (angle) in motors value range
+  int new_y = (y * MAX_TURN) / ACCEL_SENSIBILITY;           // Mapping y (angle) in motors value range
   
   if(y > -SQUARE_SIZE_Y && y < SQUARE_SIZE_Y){
     new_y = 0;
@@ -163,7 +164,7 @@ void calculateAndMove(int x, int y){
       left(new_x);
     }
   }else{                  // Static
-    right(-new_y);
-    left(new_y);
+    right(new_y);
+    left(-new_y);
   }
 }
